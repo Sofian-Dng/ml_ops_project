@@ -186,27 +186,22 @@ kubectl logs <pod-name>
 
 #### **TensorFlow/Keras**
 - **Choix** : Framework de deep learning standard et bien documenté
-- **Alternative** : PyTorch (mais TensorFlow est plus adapté pour le déploiement en production)
 - **Avantage** : Intégration native avec MLflow, support complet de SavedModel
 
 #### **MLflow**
 - **Choix** : Solution open-source pour le tracking et versioning de modèles
-- **Alternative** : Weights & Biases, Neptune (mais MLflow est gratuit et open-source)
 - **Avantage** : Tracking automatique des métriques, versioning, API REST intégrée (`mlflow models serve`)
 
 #### **Minio (S3 compatible)**
 - **Choix** : Stockage objet compatible S3 pour stocker les modèles
-- **Alternative** : AWS S3 direct (mais Minio permet de tester localement)
 - **Avantage** : Facile à déployer localement, compatible avec boto3, migration vers AWS S3 transparente
 
 #### **Apache Airflow**
 - **Choix** : Orchestrateur de workflows open-source standard
-- **Alternative** : Prefect, Luigi (mais Airflow est le standard industriel)
 - **Avantage** : DAGs visuels, scheduling flexible, gestion d'erreurs robuste
 
 #### **Docker**
 - **Choix** : Conteneurisation standard pour isoler les dépendances
-- **Alternative** : Podman (mais Docker est le standard)
 - **Avantage** : Reproducibilité, portabilité, isolation des dépendances
 
 #### **Kubernetes**
@@ -216,17 +211,14 @@ kubectl logs <pod-name>
 
 #### **Prometheus + Grafana**
 - **Choix** : Stack de monitoring standard dans l'industrie
-- **Alternative** : Datadog, New Relic (mais Prometheus/Grafana sont open-source)
 - **Avantage** : Métriques temps réel, dashboards personnalisables, alerting
 
 #### **Gradio**
 - **Choix** : Interface web interactive rapide à développer
-- **Alternative** : Streamlit, FastAPI + HTML (mais Gradio est plus simple pour les modèles ML)
 - **Avantage** : Interface prête en quelques lignes, upload d'images facile
 
 #### **Feature Store (Parquet + MySQL)**
 - **Choix** : Stockage de features avec métadonnées
-- **Alternative** : Feast, Tecton (mais solution simple suffit pour ce projet)
 - **Avantage** : Parquet pour performances, MySQL pour métadonnées et requêtes
 
 ## 🧪 Tests
@@ -272,23 +264,6 @@ python -m pytest tests/test_e2e.py -v
 - **Temps de déploiement Kubernetes** : ~1 minute (2 pods)
 - **Latence API** : < 500ms par prédiction
 
-### Screenshots
-
-> 📸 **À ajouter** : Ajoutez ici des screenshots de :
-> - Interface Gradio avec prédiction
-> - Dashboard Grafana avec métriques
-> - Airflow DAGs en cours d'exécution
-> - MLflow UI avec métriques et modèles versionnés
-> - Minio Console avec modèles stockés
-> - Kubernetes pods en cours d'exécution
-
-**Exemple de structure :**
-```
-![Gradio Interface](screenshots/gradio_interface.png)
-![Grafana Dashboard](screenshots/grafana_dashboard.png)
-![Airflow DAGs](screenshots/airflow_dags.png)
-![MLflow UI](screenshots/mlflow_ui.png)
-```
 
 ## 🐳 Docker Hub
 
