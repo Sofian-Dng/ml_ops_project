@@ -1,6 +1,6 @@
 # 🚀 Pipeline MLOps - Classification Binaire d'Images
 
-**Classification pissenlit vs herbe avec pipeline MLOps complet (11/11 objectifs)**
+**Classification pissenlit vs herbe avec pipeline MLOps **
 
 ## 📊 Stack Technique
 
@@ -15,19 +15,6 @@
 - **Monitoring**: Prometheus + Grafana
 - **Interface**: Gradio
 
-## 🎯 11 Objectifs Atteints
-
-1. ✅ Extract/preprocess data
-2. ✅ Build classification model
-3. ✅ Store model on S3 (Minio)
-4. ✅ Track with MLflow
-5. ✅ Develop API
-6. ✅ Create WebApp
-7. ✅ Dockerize and deploy K8s
-8. ✅ Version/document GitHub
-9. ✅ Retraining pipeline Airflow
-10. ✅ Monitoring
-11. ✅ Feature Store
 
 ## 📁 Structure du Projet
 
@@ -65,7 +52,7 @@ mlops-project-git/
         └── mlops-pipeline.yml         # CI/CD GitHub Actions
 ```
 
-## 🚀 Installation Rapide
+
 
 ### 1. Dépendances Python
 
@@ -183,7 +170,7 @@ kubectl get pods -l app=dandelion-grass-classifier
 kubectl logs <pod-name>
 ```
 
-## 📝 Notes Techniques
+##  Notes 
 
 - **Modèle** : CNN simple (3 couches convolutionnelles) pour classification binaire
 - **Format API** : JSON avec `{"inputs": [[image_normalisée_224x224x3]]}`
@@ -192,7 +179,4 @@ kubectl logs <pod-name>
 - **Kubernetes** : 2 pods pour haute disponibilité, NodePort 30080
 - **CI/CD** : Workflow GitHub Actions déclenché sur push vers `main`
 
-## 📄 License
-
-Ce projet est un projet académique MLOps.
 
