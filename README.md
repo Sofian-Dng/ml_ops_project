@@ -206,7 +206,6 @@ kubectl logs <pod-name>
 
 #### **Kubernetes**
 - **Choix** : Orchestration de conteneurs pour haute disponibilité
-- **Alternative** : Docker Swarm (mais K8s est le standard industriel)
 - **Avantage** : Scalabilité automatique, 2 pods pour haute disponibilité, load balancing
 
 #### **Prometheus + Grafana**
