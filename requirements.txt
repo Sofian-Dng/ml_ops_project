@@ -30,3 +30,7 @@ pyarrow>=12.0.0  # Pour Parquet
 # Optional: keep existing dependencies if needed
 dotenv>=0.9.9
 scikit-learn>=1.7.2
+
+# Testing
+pytest>=7.4.0
+pytest-cov>=4.1.0

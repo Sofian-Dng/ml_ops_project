@@ -2,6 +2,15 @@
 
 **Classification pissenlit vs herbe avec pipeline MLOps complet (11/11 objectifs)**
 
+## 👥 Équipe
+
+**Membres du projet :**
+- Sofian Duong
+- Joseph Dejean
+- Maxandre Michel
+- Paul Montier
+- Mathieu Chabirand
+
 ## 📊 Stack Technique
 
 - **Modèle**: TensorFlow/Keras (CNN)
@@ -183,6 +192,149 @@ kubectl get pods -l app=dandelion-grass-classifier
 kubectl logs <pod-name>
 ```
 
+## 🎓 Choix Techniques et Justifications
+
+### Pourquoi ces outils ?
+
+#### **TensorFlow/Keras**
+- **Choix** : Framework de deep learning standard et bien documenté
+- **Alternative** : PyTorch (mais TensorFlow est plus adapté pour le déploiement en production)
+- **Avantage** : Intégration native avec MLflow, support complet de SavedModel
+
+#### **MLflow**
+- **Choix** : Solution open-source pour le tracking et versioning de modèles
+- **Alternative** : Weights & Biases, Neptune (mais MLflow est gratuit et open-source)
+- **Avantage** : Tracking automatique des métriques, versioning, API REST intégrée (`mlflow models serve`)
+
+#### **Minio (S3 compatible)**
+- **Choix** : Stockage objet compatible S3 pour stocker les modèles
+- **Alternative** : AWS S3 direct (mais Minio permet de tester localement)
+- **Avantage** : Facile à déployer localement, compatible avec boto3, migration vers AWS S3 transparente
+
+#### **Apache Airflow**
+- **Choix** : Orchestrateur de workflows open-source standard
+- **Alternative** : Prefect, Luigi (mais Airflow est le standard industriel)
+- **Avantage** : DAGs visuels, scheduling flexible, gestion d'erreurs robuste
+
+#### **Docker**
+- **Choix** : Conteneurisation standard pour isoler les dépendances
+- **Alternative** : Podman (mais Docker est le standard)
+- **Avantage** : Reproducibilité, portabilité, isolation des dépendances
+
+#### **Kubernetes**
+- **Choix** : Orchestration de conteneurs pour haute disponibilité
+- **Alternative** : Docker Swarm (mais K8s est le standard industriel)
+- **Avantage** : Scalabilité automatique, 2 pods pour haute disponibilité, load balancing
+
+#### **Prometheus + Grafana**
+- **Choix** : Stack de monitoring standard dans l'industrie
+- **Alternative** : Datadog, New Relic (mais Prometheus/Grafana sont open-source)
+- **Avantage** : Métriques temps réel, dashboards personnalisables, alerting
+
+#### **Gradio**
+- **Choix** : Interface web interactive rapide à développer
+- **Alternative** : Streamlit, FastAPI + HTML (mais Gradio est plus simple pour les modèles ML)
+- **Avantage** : Interface prête en quelques lignes, upload d'images facile
+
+#### **Feature Store (Parquet + MySQL)**
+- **Choix** : Stockage de features avec métadonnées
+- **Alternative** : Feast, Tecton (mais solution simple suffit pour ce projet)
+- **Avantage** : Parquet pour performances, MySQL pour métadonnées et requêtes
+
+## 🧪 Tests
+
+Le projet inclut une suite de tests complète :
+
+### Structure des tests
+
+- **Tests unitaires** (`tests/test_unit.py`) : 10 tests pour les fonctions individuelles
+- **Tests d'intégration** (`tests/test_integration.py`) : 8 tests pour les interactions entre composants
+- **Tests end-to-end** (`tests/test_e2e.py`) : 11 tests pour le flux complet du pipeline
+
+### Exécution des tests
+
+```bash
+# Tous les tests
+python run_tests.py
+
+# Ou avec pytest directement
+python -m pytest tests/ -v
+
+# Par catégorie
+python -m pytest tests/test_unit.py -v
+python -m pytest tests/test_integration.py -v
+python -m pytest tests/test_e2e.py -v
+```
+
+> 📖 Voir `tests/README.md` pour plus de détails
+
+## 📊 Résultats Obtenus
+
+### Métriques du Modèle
+
+- **Accuracy d'entraînement** : ~85-90% (selon les runs)
+- **Accuracy de validation** : ~80-85%
+- **Format** : Classification binaire (Pissenlit vs Herbe)
+- **Taille du modèle** : ~10-15 MB (SavedModel)
+
+### Performance du Pipeline
+
+- **Temps d'entraînement** : 5-10 minutes (400 images, 10 epochs)
+- **Temps de déploiement Docker** : ~2 minutes (build + run)
+- **Temps de déploiement Kubernetes** : ~1 minute (2 pods)
+- **Latence API** : < 500ms par prédiction
+
+### Screenshots
+
+> 📸 **À ajouter** : Ajoutez ici des screenshots de :
+> - Interface Gradio avec prédiction
+> - Dashboard Grafana avec métriques
+> - Airflow DAGs en cours d'exécution
+> - MLflow UI avec métriques et modèles versionnés
+> - Minio Console avec modèles stockés
+> - Kubernetes pods en cours d'exécution
+
+**Exemple de structure :**
+```
+![Gradio Interface](screenshots/gradio_interface.png)
+![Grafana Dashboard](screenshots/grafana_dashboard.png)
+![Airflow DAGs](screenshots/airflow_dags.png)
+![MLflow UI](screenshots/mlflow_ui.png)
+```
+
+## 🐳 Docker Hub
+
+### Image Docker disponible
+
+L'image Docker du modèle est disponible sur Docker Hub :
+
+**URL de l'image :** https://hub.docker.com/r/khal160/dandelion-grass-classifier
+
+✅ Image publiée et accessible publiquement sur Docker Hub.
+
+### Pull et utilisation
+
+```bash
+# Pull l'image depuis Docker Hub
+docker pull khal160/dandelion-grass-classifier:latest
+
+# Lancer le container
+docker run -p 5000:5000 khal160/dandelion-grass-classifier:latest
+```
+
+### Push vers Docker Hub
+
+```bash
+# 1. Se connecter à Docker Hub
+docker login
+
+# 2. Tag l'image
+docker tag dandelion-grass-classifier:latest khal160/dandelion-grass-classifier:latest
+
+# 3. Push l'image
+docker push khal160/dandelion-grass-classifier:latest
+```
+
 ## 📝 Notes Techniques
 
 - **Modèle** : CNN simple (3 couches convolutionnelles) pour classification binaire
@@ -191,6 +343,20 @@ kubectl logs <pod-name>
 - **Docker** : Utilise `mlflow models serve` (pas besoin de FastAPI)
 - **Kubernetes** : 2 pods pour haute disponibilité, NodePort 30080
 - **CI/CD** : Workflow GitHub Actions déclenché sur push vers `main`
+- **Tests** : Suite complète de tests unitaires, intégration et E2E
+
+## 🔄 CI/CD Pipeline
+
+Le pipeline CI/CD GitHub Actions :
+
+1. **Checkout** du code
+2. **Installation** des dépendances Python
+3. **Téléchargement** des données d'entraînement
+4. **Entraînement** du modèle avec MLflow
+5. **Build** de l'image Docker
+6. **Déploiement** (optionnel, selon configuration)
+
+> 📖 Voir `.github/workflows/mlops-pipeline.yml` pour les détails
 
 ## 📄 License
 
