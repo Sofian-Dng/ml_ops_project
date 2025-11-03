@@ -1,0 +1,49 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: 'mlops-local'
+    environment: 'dev'
+
+scrape_configs:
+  # Prometheus lui-même
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # API MLflow (si exposée)
+  - job_name: 'mlflow-api'
+    static_configs:
+      - targets: ['host.docker.internal:5000']
+    metrics_path: '/metrics'
+
+  # Kubernetes API (si disponible)
+  - job_name: 'kubernetes-pods'
+    kubernetes_sd_configs:
+      - role: pod
+    relabel_configs:
+      - source_labels: [__meta_kubernetes_pod_label_app]
+        regex: dandelion-grass-classifier
+        action: keep
+
+  # Application API (via endpoint custom)
+  - job_name: 'model-api'
+    static_configs:
+      - targets: ['host.docker.internal:30080']
+    metrics_path: '/metrics'
+
+  # Minio metrics
+  - job_name: 'minio'
+    static_configs:
+      - targets: ['minio:9000']
+
+  # Métriques MLOps de démonstration
+  - job_name: 'mlops-demo-metrics'
+    static_configs:
+      - targets: ['host.docker.internal:8000']
+    
+  # MySQL (si exporter installé)
+  # - job_name: 'mysql'
+  #   static_configs:
+  #     - targets: ['mysql-exporter:9104']
+

@@ -1,0 +1,76 @@
+name: MLOps Pipeline - Build and Deploy
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"  # Aligné avec la version d'entraînement
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Download training data
+        run: |
+          python download_data.py
+
+      - name: Train model with MLflow
+        run: |
+          python train.py
+        env:
+          MLFLOW_TRACKING_URI: ./mlruns
+
+      - name: Find latest MLflow model
+        id: find-model
+        run: |
+          # Trouver le dernier modèle entraîné dans mlruns
+          LATEST_RUN=$(find mlruns -name "model" -type d | head -1)
+          echo "MODEL_PATH=$LATEST_RUN" >> $GITHUB_OUTPUT
+          echo "Found model at: $LATEST_RUN"
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Build Docker image
+        run: |
+          docker build -t dandelion-grass-classifier:latest .
+
+      - name: Save Docker image
+        run: |
+          docker save dandelion-grass-classifier:latest -o /tmp/model-image.tar
+
+      # Pour déploiement sur un self-hosted runner avec accès à K8s
+      # Décommenter et adapter selon votre setup
+      # - name: Load image to K8s cluster
+      #   run: |
+      #     # Si vous utilisez un self-hosted runner, vous pouvez charger l'image directement
+      #     # ou pousser vers un registry local
+      #     # kubectl load image dandelion-grass-classifier:latest --from-file=/tmp/model-image.tar
+
+      # - name: Deploy to Kubernetes
+      #   run: |
+      #     kubectl apply -f k8s/deployment.yaml
+      #     kubectl apply -f k8s/service.yaml
+      #     kubectl rollout status deployment/dandelion-grass-classifier
+
+      - name: Summary
+        run: |
+          echo "✅ Build terminé avec succès"
+          echo "📦 Image Docker: dandelion-grass-classifier:latest"
+          echo "🔧 Pour déployer manuellement:"
+          echo "   kubectl apply -f k8s/deployment.yaml"
+          echo "   kubectl apply -f k8s/service.yaml"

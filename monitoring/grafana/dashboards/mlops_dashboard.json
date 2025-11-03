@@ -1,0 +1,60 @@
+{
+  "dashboard": {
+    "title": "MLOps Pipeline Dashboard",
+    "tags": ["mlops", "classification"],
+    "timezone": "browser",
+    "panels": [
+      {
+        "id": 1,
+        "title": "API Requests Total",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "sum(rate(mlops_api_requests_total[5m]))",
+            "legendFormat": "Requests/sec"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0}
+      },
+      {
+        "id": 2,
+        "title": "Model Predictions",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "mlops_model_predictions_total",
+            "legendFormat": "{{class}}"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0}
+      },
+      {
+        "id": 3,
+        "title": "Model Confidence",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "mlops_model_confidence",
+            "legendFormat": "{{class}}"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8}
+      },
+      {
+        "id": 4,
+        "title": "Kubernetes Pods",
+        "type": "singlestat",
+        "targets": [
+          {
+            "expr": "mlops_kubernetes_pods"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8}
+      }
+    ],
+    "refresh": "10s",
+    "schemaVersion": 27,
+    "version": 1
+  }
+}
+

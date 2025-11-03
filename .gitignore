@@ -1,0 +1,53 @@
+﻿# Python
+__pycache__/
+*.py[cod]
+*.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.venv
+
+# Data and models
+data/
+mlruns/
+feature_store/
+*.pkl
+*.h5
+*.ckpt
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Airflow
+airflow/logs/
+airflow/__pycache__/
+airflow/plugins/
+
+# Docker
+*.tar
+minio_data/
+mysql_data/
+prometheus_data/
+grafana_data/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Secrets
+.env
+*.key
+*.pem
+
+# Logs
+*.log
+output.txt

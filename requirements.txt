@@ -1,0 +1,32 @@
+# Core ML - Versions EXACTES du modèle entraîné
+# tensorflow-cpu==2.15.0 installe automatiquement tensorflow-intel==2.15.0
+tensorflow-cpu==2.15.0
+# Note: tensorflow-intel est installé automatiquement par tensorflow-cpu
+
+mlflow>=3.5.0
+
+# Data processing - Version EXACTE du modèle (numpy==1.26.4 requis par le modèle)
+numpy==1.26.4
+Pillow>=10.0.0
+
+# Utilities
+tqdm>=4.66.0
+requests>=2.31.0
+
+# Client interface
+gradio>=4.0.0
+
+# S3/Minio support
+boto3>=1.28.0
+
+# Database support
+pymysql>=1.1.0
+sqlalchemy>=2.0.0
+
+# Feature store
+pandas>=2.0.0
+pyarrow>=12.0.0  # Pour Parquet
+
+# Optional: keep existing dependencies if needed
+dotenv>=0.9.9
+scikit-learn>=1.7.2

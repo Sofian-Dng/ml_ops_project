@@ -1,0 +1,36 @@
+# Dockerfile pour servir le modèle MLflow depuis Minio/S3
+# Alternative au Dockerfile standard qui copie mlruns/
+FROM python:3.11-slim
+
+# Installer les dépendances système
+RUN apt-get update && apt-get install -y \
+    gcc \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Définir le répertoire de travail
+WORKDIR /app
+
+# Copier le fichier requirements
+COPY requirements.txt .
+
+# Installer les dépendances Python
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copier les utils S3 et le script d'entrée
+COPY utils_s3.py .
+COPY entrypoint_s3.sh /entrypoint_s3.sh
+RUN chmod +x /entrypoint_s3.sh
+
+# Variables d'environnement pour Minio
+ENV MINIO_ENDPOINT=http://minio:9000
+ENV MINIO_ACCESS_KEY=minioadmin
+ENV MINIO_SECRET_KEY=minioadmin
+ENV MINIO_BUCKET=mlops-models
+
+# Exposer le port 5000
+EXPOSE 5000
+
+# Utiliser le script d'entrée qui télécharge depuis S3
+CMD ["/entrypoint_s3.sh"]
+
