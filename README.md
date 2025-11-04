@@ -10,6 +10,7 @@
 - Maxandre Michel
 - Paul Montier
 - Mathieu Chabirand
+- Chemseddine nadour
 
 ## 📊 Stack Technique
 
