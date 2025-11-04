@@ -80,7 +80,11 @@ docker-compose up -d
 # - Airflow: http://localhost:8080 (admin/admin)
 # - Prometheus: http://localhost:9090
 # - Grafana: http://localhost:3000 (admin/admin)
+# - MLflow UI: http://localhost:5001
 # - MySQL: localhost:3306
+
+# Pour les métriques Prometheus, lancer aussi :
+python generate_prometheus_metrics.py
 ```
 
 ## 📋 Utilisation
@@ -97,8 +101,10 @@ python train.py
 
 **Résultat** :
 - Modèle enregistré dans `mlruns/` (MLflow)
-- Modèle uploadé vers Minio/S3
-- Features extraites et stockées
+- Modèle uploadé vers Minio/S3 (bucket `mlops-models`)
+- Features extraites et stockées dans Feature Store (Parquet + MySQL)
+  - Parquet : `feature_store/features_*.parquet`
+  - MySQL : Table `feature_store` avec métadonnées
 
 ### Phase 2 : Docker
 
@@ -110,7 +116,9 @@ docker build -t dandelion-grass-classifier:latest .
 docker run -p 5000:5000 dandelion-grass-classifier:latest
 ```
 
-**API accessible** : http://localhost:5000/invocations
+**API accessible** : http://localhost:5000/invocations (POST uniquement)
+
+**Note** : Le container Docker s'appelle `mlflow-model-api` (renommé depuis `elegant_agnesi`)
 
 ### Phase 3 : Kubernetes
 
@@ -124,13 +132,18 @@ kubectl get pods
 kubectl get services
 ```
 
-**API accessible** : http://localhost:30080/invocations
+**API accessible** : http://localhost:30080/invocations (POST uniquement)
+
+**Note** : Les endpoints `/invocations` n'acceptent que POST. Un GET retournera `405 Method Not Allowed`.
 
 ### Phase 4 : Airflow
 
 1. Ouvrir http://localhost:8080 (admin/admin)
-2. Activer le DAG `mlops_retraining_pipeline`
-3. Déclencher manuellement ou attendre le schedule
+2. **Note** : Les DAGs sont en pause par défaut (sécurité)
+3. Pour activer : Toggle le switch à côté du DAG ou utiliser le bouton Play pour exécution manuelle
+4. DAGs disponibles :
+   - `mlops_retraining_pipeline` : Pipeline complet (toutes les 7 jours)
+   - `continuous_training` : Vérification continue (toutes les 6 heures)
 
 ### Phase 5 : Interface Gradio
 
@@ -149,16 +162,22 @@ Ouvrir `NOTEBOOK_PRESENTATION_FINAL.ipynb` pour :
 
 ## 🔗 URLs d'Accès
 
-| Service | URL | Credentials |
-|---------|-----|------------|
-| Gradio | http://localhost:7860 | - |
-| API K8s | http://localhost:30080/invocations | - |
-| API Docker | http://localhost:5000/invocations | - |
-| MLflow UI | `mlflow ui` → http://localhost:5000 | - |
-| Airflow | http://localhost:8080 | admin/admin |
-| Prometheus | http://localhost:9090 | - |
-| Grafana | http://localhost:3000 | admin/admin |
-| Minio Console | http://localhost:9001 | minioadmin/minioadmin |
+| Service | URL | Credentials | Notes |
+|---------|-----|------------|-------|
+| 🎨 Gradio | http://localhost:7860 | - | Interface web interactive |
+| ☸️ API K8s | http://localhost:30080/invocations | - | POST uniquement (2 pods) |
+| 🐳 API Docker | http://localhost:5000/invocations | - | POST uniquement, container: `mlflow-model-api` |
+| 📊 MLflow UI | http://localhost:5001 | - | Via docker-compose (statut peut être "unhealthy") |
+| 🔄 Airflow | http://localhost:8080 | admin/admin | DAGs en pause par défaut |
+| 📊 Prometheus | http://localhost:9090 | - | Collecte métriques |
+| 📈 Grafana | http://localhost:3000 | admin/admin | Dashboards monitoring |
+| 💾 Minio Console | http://localhost:9001 | minioadmin/minioadmin | Stockage S3 |
+
+**⚠️ Notes importantes** :
+- Les APIs `/invocations` n'acceptent que **POST** (GET = 405 Method Not Allowed)
+- Les DAGs Airflow sont **en pause par défaut** (sécurité) → Activer avec toggle ou Play
+- Le script `generate_prometheus_metrics.py` doit être **en cours d'exécution** pour les métriques
+- MLflow UI peut être "unhealthy" mais fonctionne quand même sur http://localhost:5001
 
 ## 🛠️ Commandes Essentielles
 
@@ -177,9 +196,47 @@ kubectl get pods -l app=dandelion-grass-classifier
 
 # Voir les logs d'un pod
 kubectl logs <pod-name>
+
+# Lancer le générateur de métriques (pour Prometheus)
+python generate_prometheus_metrics.py
+
+# Arrêter tous les services
+docker-compose down
 ```
 
-<<<<<<< HEAD
+## 📊 Monitoring
+
+### Prometheus et Grafana
+
+Le projet inclut un monitoring complet avec Prometheus (collecte) et Grafana (visualisation).
+
+#### Génération de métriques
+
+```bash
+# Lancer le générateur de métriques de démonstration
+python generate_prometheus_metrics.py
+```
+
+**Important** : Gardez ce script en cours d'exécution pour que Prometheus puisse collecter les métriques.
+
+#### Accès aux interfaces
+
+- **Prometheus** : http://localhost:9090
+  - Vérifier les targets : Status → Targets
+  - Requêtes : Graph → Tapez `mlops_api_requests_total`
+  
+- **Grafana** : http://localhost:3000 (admin/admin)
+  - Créer des dashboards avec les métriques Prometheus
+  - Requêtes utiles : `mlops_model_predictions_total`, `mlops_model_confidence`, `rate(mlops_api_requests_total[5m])`
+
+#### Métriques disponibles
+
+- `mlops_api_requests_total` : Nombre total de requêtes API
+- `mlops_model_predictions_total` : Prédictions par classe
+- `mlops_model_confidence` : Confiance du modèle
+- `mlops_kubernetes_pods` : Nombre de pods actifs
+- `mlops_api_request_duration_seconds` : Durée des requêtes
+
 ## 🎓 Choix Techniques et Justifications
 
 ### Pourquoi ces outils ?
@@ -218,6 +275,7 @@ kubectl logs <pod-name>
 - **Choix** : Stack de monitoring standard dans l'industrie
 - **Alternative** : Datadog, New Relic (mais Prometheus/Grafana sont open-source)
 - **Avantage** : Métriques temps réel, dashboards personnalisables, alerting
+- **Rôle** : Prometheus collecte les métriques, Grafana les visualise
 
 #### **Gradio**
 - **Choix** : Interface web interactive rapide à développer
@@ -228,6 +286,10 @@ kubectl logs <pod-name>
 - **Choix** : Stockage de features avec métadonnées
 - **Alternative** : Feast, Tecton (mais solution simple suffit pour ce projet)
 - **Avantage** : Parquet pour performances, MySQL pour métadonnées et requêtes
+- **Implémentation** : 
+  - Parquet files pour stockage efficace des features extraites des images
+  - MySQL pour métadonnées (nom, chemin, timestamp, run_id)
+  - Automatiquement rempli lors de `train.py`
 
 ## 🧪 Tests
 
@@ -328,8 +390,14 @@ docker push khal160/dandelion-grass-classifier:latest
 - **Modèle** : CNN simple (3 couches convolutionnelles) pour classification binaire
 - **Format API** : JSON avec `{"inputs": [[image_normalisée_224x224x3]]}`
 - **MLflow** : Tracking automatique des métriques et versioning du modèle
+  - **UI** : http://localhost:5001 (via docker-compose)
+  - Statut peut être "unhealthy" mais fonctionne quand même
 - **Docker** : Utilise `mlflow models serve` (pas besoin de FastAPI)
+  - Container nommé `mlflow-model-api` sur port 5000
 - **Kubernetes** : 2 pods pour haute disponibilité, NodePort 30080
+- **APIs** : Les endpoints `/invocations` n'acceptent que POST (GET = 405)
+- **Airflow** : DAGs en pause par défaut (sécurité), activer avec toggle ou Play
+- **Monitoring** : `generate_prometheus_metrics.py` doit être en cours d'exécution
 - **CI/CD** : Workflow GitHub Actions déclenché sur push vers `main`
 - **Tests** : Suite complète de tests unitaires, intégration et E2E
 
