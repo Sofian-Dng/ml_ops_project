@@ -11,6 +11,7 @@
 - Paul Montier
 - Mathieu Chabirand
 - Chemseddine nadour
+- emre
 
 ## 📊 Stack Technique
 
